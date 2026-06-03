@@ -1,34 +1,24 @@
-# Seeing Without Looking: Visual Dependency in Vision-Language Models
+<h1 align="center">Seeing Without Looking: Visual Dependency in Vision-Language Models</h1>
 
 <p align="center">
-
   <a href="https://arxiv.org/abs/2605.22903">
-
     <img src="https://img.shields.io/badge/arXiv-2605.22903-b31b1b.svg" alt="arXiv">
-
   </a>
-
   <a href="https://openaccess.thecvf.com/content/CVPR2026W/GRAIL-V/papers/Lan_Seeing_without_Looking_Do_Vision-Language_Benchmarks_Really_Test_Vision_CVPRW_2026_paper.pdf">
-
-    <img src="https://img.shields.io/badge/Paper-CVPR%202026-blue.svg" alt="Paper">
-
+    <img src="https://img.shields.io/static/v1?label=Paper&message=CVPR%202026&color=blue" alt="Paper">
   </a>
-
-  <img src="https://img.shields.io/badge/Task-VLM%20Evaluation-green.svg" alt="Task">
-
-  <img src="https://img.shields.io/badge/Focus-Visual%20Grounding-orange.svg" alt="Focus">
-
+  <img src="https://img.shields.io/static/v1?label=Task&message=VLM%20Evaluation&color=green" alt="Task">
+  <img src="https://img.shields.io/static/v1?label=Focus&message=Visual%20Grounding&color=orange" alt="Focus">
 </p>
 
 <p align="center">
-
-  <img src="assets/teaser.png" alt="Seeing without Looking teaser" width="90%">
-
+  <b>Do vision-language benchmarks really require vision?</b><br>
+  We find that several widely used VLM benchmarks can be partially solved even when visual input is removed or degraded, raising questions about how well they measure visual grounding.
 </p>
 
-[![arXiv](https://img.shields.io/badge/arXiv-2605.22903-b31b1b.svg)](https://arxiv.org/abs/2605.22903)
-
-![Teaser](assets/teaser.png)
+<p align="center">
+  <img src="assets/teaser.png" alt="Seeing without Looking teaser" width="60%">
+</p>
 
 ## Overview
 
@@ -37,6 +27,8 @@ This repository contains the official implementation for **Seeing without Lookin
 We investigate whether widely used vision-language benchmarks truly require visual grounding, or whether strong performance can be achieved even when models do not meaningfully rely on the image. Our experiments evaluate vision-language models under different visual input conditions, including standard image-based evaluation and image-removed or visually perturbed settings, to measure how much benchmark performance depends on actual visual understanding.
 
 This repository provides evaluation scripts for multiple vision-language benchmarks and open vision-language models.
+
+
 
 ## Installation
 
