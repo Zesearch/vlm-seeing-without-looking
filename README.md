@@ -82,11 +82,13 @@ python Amber_Eval/eval_amber_generative_qwen.py --amber_dir /path/to/AMBER
 If you find this repository useful, please cite our paper:
 
 ```bibtex
-@inproceedings{lan2026seeing,
-  title={Seeing without Looking: Do Vision-Language Benchmarks Really Test Vision?},
-  author={Lan, Zixuan and Sun, Luzhe and Walter, Matthew R and Zhou, Jiawei},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  pages={11260--11273},
-  year={2026}
+
+@InProceedings{Lan_2026_CVPR,
+    author    = {Lan, Zixuan and Sun, Luzhe and Walter, Matthew R and Zhou, Jiawei},
+    title     = {Seeing without Looking: Do Vision-Language Benchmarks Really Test Vision?},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops},
+    month     = {June},
+    year      = {2026},
+    pages     = {11260-11273}
 }
 ```
