@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Project page for Seeing without Looking: Do Vision-Language Benchmarks Really Test Vision?" />
+    <title>Seeing without Looking</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="site-name" href="#top">Seeing without Looking</a>
+      <div class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#token-drop">Experiments</a>
+        <a href="#decision-margin">Analysis</a>
+        <a href="#discussion">Discussion</a>
+      </div>
+    </nav>
+
+    <main>
+      <header class="hero" id="top">
+        <h1>Seeing without Looking:</h1>
+        <h2>Do Vision-Language Benchmarks Really Test Vision?</h2>
+
+        <div class="authors" aria-label="Paper authors">
+          <span>Zixuan Lan<sup>1*</sup></span>
+          <span>Luzhe Sun<sup>2*</sup></span>
+          <span>Matthew R. Walter<sup>2</sup></span>
+          <span>Jiawei Zhou<sup>3</sup></span>
+        </div>
+
+        <div class="affiliations" aria-label="Author affiliations">
+          <span><sup>1</sup>University of Chicago</span>
+          <span><sup>2</sup>Toyota Technological Institute at Chicago</span>
+          <span><sup>3</sup>Stony Brook University</span>
+        </div>
+
+        <div class="actions">
+          <a class="primary" href="https://openaccess.thecvf.com/content/CVPR2026W/GRAIL-V/papers/Lan_Seeing_without_Looking_Do_Vision-Language_Benchmarks_Really_Test_Vision_CVPRW_2026_paper.pdf">Paper</a>
+          <a href="https://github.com/Zesearch/vlm-seeing-without-looking">Code</a>
+          <a href="https://zesearch.github.io/vlm-SABRE/#entity-swap">Follow-up: SABRE</a>
+        </div>
+      </header>
+
+      <section class="abstract" id="abstract">
+        <h2>Abstract</h2>
+        <p>
+          Benchmark accuracy is often implicitly assumed to reflect grounded visual understanding in vision-language models (VLMs), yet it remains unclear to what extent such scores truly reflect reliance on visual evidence. Motivated by a surprising observation that removing a substantial fraction of image tokens only degrades model performance very slightly on a widely used hallucination benchmark, we systematically investigate this mismatch in a set of open-source VLMs.
+          Our analysis spans multiple levels of granularity, spanning global visual degradation, localized occlusion, question reformulation, answer-space expansion, and decision-level analyses beyond standard accuracy. We further complement these behavioral results with a layer-wise analysis of vision-token geometry. Throughout the experiments, we find that although VLMs do incorporate visual input, their predictions are less sensitive to the loss of fine-grained visual evidence than standard accuracy would suggest. Even when the final prediction remains unchanged, the model's internal support for the correct answer may already be weakened. A representation-level analysis shows increasing similarity among visual tokens in deeper layers, providing a possible explanation for our findings. Together, these results suggest that current benchmarks are not sufficient to reliably evaluate fine-grained visual grounding in VLMs.
+        </p>
+
+      </section>
+
+      <section class="overview" id="overview">
+        <h2>Overview</h2>
+        <figure>
+          <a href="assets/overview.pdf" aria-label="Open the original overview figure as a PDF">
+            <img src="assets/overview.png" alt="Global-level and entity-level visual interventions studied in the paper" />
+          </a>
+          <figcaption>
+            We intervene on the input image at both global and entity levels while keeping the question fixed. Global-level interventions weaken overall visual evidence through token masking, noise blur, and black, whereas entity-level interventions manipulate the question-relevant region via black mask, black box, and entity swap. In this example, despite substantial degradation or alteration of the visual evidence, the model’s final answer can remain unchanged and still predict that a baseball glove is present.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="token-drop" id="token-drop">
+        <h2>Vision Is Not Needed</h2>
+        <p class="token-lead">
+          On POPE, randomly removing a substantial fraction of image tokens produces surprisingly little degradation in accuracy.
+        </p>
+
+        <figure>
+          <a href="assets/pope_tokens_drop.pdf" aria-label="Open the original token-drop figure as a PDF">
+            <img src="assets/token-drop.png" alt="POPE accuracy under image-token drop ratios from zero to seventy-five percent" />
+          </a>
+          <figcaption>
+            Effect of random image token dropping on POPE accuracy. Even at 75% token removal, accuracy remains nearly unchanged, suggesting that high performance on this benchmark does not require complete visual representations.
+          </figcaption>
+        </figure>
+
+        <div class="token-copy">
+          <p class="token-kicker">Key observation</p>
+          <p class="token-result">
+            For <strong>Qwen3-4B</strong> and <strong>LLaVA-1.5-7B</strong>, accuracy falls by only about <strong>3%</strong> even when <strong>75%</strong> of image tokens are randomly removed. Qwen3-32B and Gemma3-12B do not exhibit a monotonic decline, and both slightly outperform their baselines at a 25% drop ratio. If benchmark scores remain stable under such severe visual degradation, how well do they reflect a model’s reliance on visual evidence?
+          </p>
+        </div>
+      </section>
+
+      <section class="global-interventions" id="global-interventions">
+        <h2>Global-Level Visual Interventions</h2>
+        <p class="global-lead">
+          We intervene directly on the input image before visual encoding: <strong>No Image</strong> removes the image entirely, <strong>Black</strong> occludes part of the image, and <strong>Blur</strong> mixes the image with random noise.
+        </p>
+
+        <div class="tabbed-results global-results" data-tab-group>
+          <div class="benchmark-tabs" role="tablist" aria-label="Choose a benchmark">
+            <button class="benchmark-tab active" id="tab-pope" type="button" role="tab" aria-selected="true" aria-controls="panel-pope" data-panel="panel-pope">POPE</button>
+            <button class="benchmark-tab" id="tab-aokvqa" type="button" role="tab" aria-selected="false" aria-controls="panel-aokvqa" data-panel="panel-aokvqa">A-OKVQA</button>
+            <button class="benchmark-tab" id="tab-mme" type="button" role="tab" aria-selected="false" aria-controls="panel-mme" data-panel="panel-mme">MME</button>
+          </div>
+
+          <div class="benchmark-panel" id="panel-pope" role="tabpanel" aria-labelledby="tab-pope">
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Model</th><th>Normal</th><th>No Image</th><th>Black<br><span>p = 0.5</span></th><th>Black<br><span>p = 0.75</span></th><th>Blur<br><span>p = 0.5</span></th><th>Blur<br><span>p = 0.75</span></th></tr></thead>
+                <tbody>
+                  <tr><th>Qwen3-VL-32B</th><td>0.96</td><td>0.50</td><td>0.87</td><td>0.81</td><td>0.89</td><td>0.60</td></tr>
+                  <tr><th>InternVL3-8B</th><td>0.98</td><td>0.50</td><td>0.86</td><td>0.80</td><td>0.93</td><td>0.71</td></tr>
+                  <tr><th>Qwen3-VL-8B</th><td>0.97</td><td>0.50</td><td>0.86</td><td>0.78</td><td>0.91</td><td>0.71</td></tr>
+                  <tr><th>Gemma-3-12B</th><td>0.94</td><td>0.57</td><td>0.89</td><td>0.80</td><td>0.78</td><td>0.54</td></tr>
+                  <tr><th>Qwen3-VL-4B</th><td>0.95</td><td>0.50</td><td>0.87</td><td>0.77</td><td>0.90</td><td>0.65</td></tr>
+                  <tr><th>LLaVA-1.5-7B</th><td>0.94</td><td>0.50</td><td>0.87</td><td>0.76</td><td>0.90</td><td>0.72</td></tr>
+                  <tr><th>Molmo-7B-D-0924</th><td>0.95</td><td>0.51</td><td>0.85</td><td>0.77</td><td>0.92</td><td>0.75</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="benchmark-panel" id="panel-aokvqa" role="tabpanel" aria-labelledby="tab-aokvqa" hidden>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Model</th><th>Normal</th><th>No Image</th><th>Black<br><span>p = 0.5</span></th><th>Black<br><span>p = 0.75</span></th><th>Blur<br><span>p = 0.5</span></th><th>Blur<br><span>p = 0.75</span></th></tr></thead>
+                <tbody>
+                  <tr><th>Qwen3-VL-32B</th><td>0.90</td><td>0.51</td><td>0.79</td><td>0.72</td><td>0.78</td><td>0.73</td></tr>
+                  <tr><th>InternVL3-8B</th><td>0.88</td><td>0.48</td><td>0.79</td><td>0.71</td><td>0.77</td><td>0.70</td></tr>
+                  <tr><th>Qwen3-VL-8B</th><td>0.89</td><td>0.47</td><td>0.77</td><td>0.69</td><td>0.76</td><td>0.70</td></tr>
+                  <tr><th>Gemma-3-12B</th><td>0.84</td><td>0.46</td><td>0.74</td><td>0.68</td><td>0.70</td><td>0.66</td></tr>
+                  <tr><th>Qwen3-VL-4B</th><td>0.86</td><td>0.47</td><td>0.76</td><td>0.68</td><td>0.75</td><td>0.70</td></tr>
+                  <tr><th>LLaVA-1.5-7B</th><td>0.77</td><td>0.38</td><td>0.69</td><td>0.65</td><td>0.69</td><td>0.64</td></tr>
+                  <tr><th>Molmo-7B-D-0924</th><td>0.82</td><td>0.47</td><td>0.69</td><td>0.64</td><td>0.70</td><td>0.64</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="benchmark-panel" id="panel-mme" role="tabpanel" aria-labelledby="tab-mme" hidden>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Model</th><th>Normal</th><th>No Image</th><th>Black<br><span>p = 0.5</span></th><th>Black<br><span>p = 0.75</span></th><th>Blur<br><span>p = 0.5</span></th><th>Blur<br><span>p = 0.75</span></th></tr></thead>
+                <tbody>
+                  <tr><th>Qwen3-VL-32B</th><td>0.92</td><td>0.54</td><td>0.86</td><td>0.81</td><td>0.85</td><td>0.81</td></tr>
+                  <tr><th>InternVL3-8B</th><td>0.89</td><td>0.56</td><td>0.82</td><td>0.78</td><td>0.82</td><td>0.80</td></tr>
+                  <tr><th>Qwen3-VL-8B</th><td>0.88</td><td>0.52</td><td>0.81</td><td>0.76</td><td>0.84</td><td>0.79</td></tr>
+                  <tr><th>Gemma-3-12B</th><td>0.83</td><td>0.56</td><td>0.78</td><td>0.74</td><td>0.75</td><td>0.73</td></tr>
+                  <tr><th>Qwen3-VL-4B</th><td>0.81</td><td>0.51</td><td>0.75</td><td>0.70</td><td>0.76</td><td>0.73</td></tr>
+                  <tr><th>LLaVA-1.5-7B</th><td>0.80</td><td>0.50</td><td>0.73</td><td>0.69</td><td>0.74</td><td>0.72</td></tr>
+                  <tr><th>Molmo-7B-D-0924</th><td>0.79</td><td>0.51</td><td>0.71</td><td>0.66</td><td>0.74</td><td>0.71</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="table-caption">Accuracy across seven models under global visual interventions. Higher is better.</p>
+        </div>
+
+        <p class="global-result">
+          Under <strong>No Image</strong>, performance drops toward chance level, confirming that the models are not independent of visual input. Under <strong>Black</strong> and <strong>Blur</strong>, however, accuracy decreases disproportionately little relative to the severity of corruption, with most models remaining well above chance across all three benchmarks. <strong>Benchmark accuracy is therefore less sensitive to severe visual degradation than the intervention itself would suggest.</strong>
+        </p>
+      </section>
+
+      <section class="entity-interventions" id="entity-interventions">
+        <h2>Entity-Level Visual Interventions</h2>
+        <p class="entity-lead">
+          Global degradation cannot reveal whether a model relies on the specific visual evidence named in the question. We therefore remove the queried entity with a precise <strong>Black Mask</strong>, occlude its local region with a <strong>Black Box</strong>, or replace it with an unrelated object through <strong>Entity Swap</strong>.
+        </p>
+        <p class="entity-metric"><strong>Yes Rate ↓</strong> · Lower is better after the queried entity is removed.</p>
+
+        <div class="tabbed-results entity-results" data-tab-group>
+          <div class="benchmark-tabs" role="tablist" aria-label="Choose a benchmark for entity-level results">
+            <button class="benchmark-tab active" id="entity-tab-pope" type="button" role="tab" aria-selected="true" aria-controls="entity-panel-pope" data-panel="entity-panel-pope">POPE</button>
+            <button class="benchmark-tab" id="entity-tab-aokvqa" type="button" role="tab" aria-selected="false" aria-controls="entity-panel-aokvqa" data-panel="entity-panel-aokvqa">A-OKVQA</button>
+            <button class="benchmark-tab" id="entity-tab-mme" type="button" role="tab" aria-selected="false" aria-controls="entity-panel-mme" data-panel="entity-panel-mme">MME</button>
+          </div>
+
+          <div class="benchmark-panel" id="entity-panel-pope" role="tabpanel" aria-labelledby="entity-tab-pope">
+            <div class="table-scroll entity-table-scroll">
+              <table>
+                <thead><tr><th>Model</th><th>Original</th><th>Black Mask</th><th>Black Box</th></tr></thead>
+                <tbody>
+                  <tr><th>Qwen3-VL-32B</th><td>0.96</td><td>0.90</td><td>0.74</td></tr>
+                  <tr><th>InternVL3-8B</th><td>0.97</td><td>0.80</td><td>0.57</td></tr>
+                  <tr><th>Qwen3-VL-8B</th><td>0.99</td><td>0.94</td><td>0.84</td></tr>
+                  <tr><th>Gemma-3-12B</th><td>0.96</td><td>0.83</td><td>0.59</td></tr>
+                  <tr><th>Qwen3-VL-4B</th><td>0.93</td><td>0.75</td><td>0.44</td></tr>
+                  <tr><th>LLaVA-1.5-7B</th><td>0.97</td><td>0.87</td><td>0.71</td></tr>
+                  <tr><th>Molmo-7B-D-0924</th><td>0.94</td><td>0.67</td><td>0.46</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="benchmark-panel" id="entity-panel-aokvqa" role="tabpanel" aria-labelledby="entity-tab-aokvqa" hidden>
+            <div class="table-scroll entity-table-scroll">
+              <table>
+                <thead><tr><th>Model</th><th>Original</th><th>Black Mask</th><th>Black Box</th></tr></thead>
+                <tbody>
+                  <tr><th>Qwen3-VL-32B</th><td>0.90</td><td>0.80</td><td>0.74</td></tr>
+                  <tr><th>InternVL3-8B</th><td>0.88</td><td>0.77</td><td>0.71</td></tr>
+                  <tr><th>Qwen3-VL-8B</th><td>0.89</td><td>0.73</td><td>0.68</td></tr>
+                  <tr><th>Gemma-3-12B</th><td>0.84</td><td>0.74</td><td>0.67</td></tr>
+                  <tr><th>Qwen3-VL-4B</th><td>0.86</td><td>0.73</td><td>0.69</td></tr>
+                  <tr><th>LLaVA-1.5-7B</th><td>0.77</td><td>0.68</td><td>0.65</td></tr>
+                  <tr><th>Molmo-7B-D-0924</th><td>0.82</td><td>0.66</td><td>0.60</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="benchmark-panel" id="entity-panel-mme" role="tabpanel" aria-labelledby="entity-tab-mme" hidden>
+            <div class="table-scroll entity-table-scroll">
+              <table>
+                <thead><tr><th>Model</th><th>Original</th><th>Black Mask</th><th>Black Box</th></tr></thead>
+                <tbody>
+                  <tr><th>Qwen3-VL-32B</th><td>0.83</td><td>0.59</td><td>0.28</td></tr>
+                  <tr><th>InternVL3-8B</th><td>0.83</td><td>0.64</td><td>0.40</td></tr>
+                  <tr><th>Qwen3-VL-8B</th><td>0.85</td><td>0.65</td><td>0.41</td></tr>
+                  <tr><th>Gemma-3-12B</th><td>0.79</td><td>0.59</td><td>0.45</td></tr>
+                  <tr><th>Qwen3-VL-4B</th><td>0.80</td><td>0.60</td><td>0.35</td></tr>
+                  <tr><th>LLaVA-1.5-7B</th><td>0.74</td><td>0.48</td><td>0.20</td></tr>
+                  <tr><th>Molmo-7B-D-0924</th><td>0.82</td><td>0.54</td><td>0.27</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="table-caption">Yes Rate under entity-level occlusion. Lower is better for Black Mask and Black Box.</p>
+        </div>
+
+        <p class="entity-result">
+          Both interventions reduce the Yes Rate, confirming that models use question-relevant local evidence. <strong>Black Box consistently causes a larger drop than Black Mask</strong>, showing that predictions also draw support from the surrounding local context. Yet even when the entity itself is completely removed, many models continue to answer Yes.
+        </p>
+
+        <div class="entity-swap">
+          <h3>Counterfactual Test: Entity Swap</h3>
+          <p class="entity-swap-lead">
+            We replace the queried entity with an unrelated object while keeping the question unchanged. The correct answer should always be No, so the ideal Yes Rate is 0.
+          </p>
+          <div class="swap-table-wrap">
+            <table>
+              <thead><tr><th>Model</th><th>Yes Rate ↓</th></tr></thead>
+              <tbody>
+                <tr><th>LLaVA-1.5-7B</th><td>0.63</td></tr>
+                <tr><th>Gemma-3-12B</th><td>0.50</td></tr>
+                <tr><th>InternVL3-8B</th><td>0.37</td></tr>
+                <tr><th>Qwen3-VL-32B</th><td>0.35</td></tr>
+                <tr><th>Qwen3-VL-8B</th><td>0.34</td></tr>
+                <tr><th>Qwen3-VL-4B</th><td>0.27</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="entity-swap-result">
+            All models remain above the ideal value of zero, indicating that their predictions do not update sufficiently when the queried entity is semantically replaced. <strong>Models use local visual evidence, but their predictions are not tightly anchored to the queried entity itself.</strong>
+          </p>
+        </div>
+      </section>
+
+      <section class="decision-margin" id="decision-margin">
+        <h2>Decision Margin Analysis</h2>
+
+        <figure>
+          <a href="assets/vilion3.pdf" aria-label="Open the original decision-margin figure as a PDF">
+            <img src="assets/decision-margin.png" alt="Decision-margin distributions under original, black entity, black box, entity swap, and no-image conditions" />
+          </a>
+        </figure>
+
+        <p class="margin-result">
+          Accuracy records only whether the final Yes/No prediction changes. To test whether visual interventions weaken the model’s internal support before changing its answer, we analyze the first-token decision margin, <strong>Δ = log p(yes) &minus; log p(no)</strong>. The <strong>Original</strong> condition has the largest positive margins, while <strong>No Image</strong> approaches the decision boundary. Black Entity, Black Box, and Entity Swap all reduce affirmative support, confirming that local evidence affects the decision. However, their distributions remain substantially above No Image: even after the queried entity is removed or replaced, broader scene-level cues can continue to sustain a Yes prediction. <strong>The final answer may remain unchanged even when the evidence supporting it has weakened substantially.</strong>
+        </p>
+      </section>
+
+      <section class="representational-analysis" id="representational-analysis">
+        <h2>Representational Analysis</h2>
+
+        <figure>
+          <a href="assets/VIT_Analysis.pdf" aria-label="Open the original representational-analysis figure as a PDF">
+            <img src="assets/representational-analysis.png" alt="Layer-wise analysis of visual-token cosine similarity, spatial compactness, effective rank, and block similarity" />
+          </a>
+        </figure>
+
+        <p class="representation-result">
+          The decision-margin results show that removing local evidence weakens affirmative support, but often not enough to change the final prediction. To understand why fine-grained evidence exerts such limited control over the answer, we examine whether spatial information remains distinguishable across the vision encoder. In early layers, visual tokens from the same spatial region remain more similar than tokens from different regions, with local structure strongest around <strong>Layers 7–9</strong>. Deeper in the encoder, inter-block similarity approaches intra-block similarity, spatial clusters become less compact, and effective rank drops sharply after approximately <strong>Layer 12</strong>. By <strong>Layer 23</strong>, the block-similarity map is nearly uniform. Across directional alignment, spatial separability, and representational dimensionality, the same pattern emerges: <strong>fine-grained spatial distinctions progressively fade with depth.</strong>
+        </p>
+      </section>
+
+      <section class="discussion" id="discussion">
+        <h2>Discussion</h2>
+        <p>
+          Across global degradation experiments, substantial corruption of the visual input produces only minor drops in benchmark accuracy, suggesting that coarse scene-level cues are often sufficient to sustain correct predictions. Entity-level interventions make this limitation more explicit: even after the queried entity is removed or replaced, models frequently remain affirmative because surrounding context can substitute for direct evidence of the entity itself. Decision-margin analysis confirms that local evidence affects internal support, while the representational analysis shows how fine-grained spatial distinctions progressively fade in deeper encoder layers. If a model can produce the expected answer without perceiving the queried entity, top-1 accuracy alone cannot faithfully measure visual grounding and may misrepresent progress in hallucination mitigation, visual-token pruning, and grounding. Evaluation should therefore test whether predictions respond appropriately when the relevant visual evidence changes. <strong>Correct predictions on current benchmarks often do not require precise visual evidence.</strong>
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>Seeing without Looking · 2026</span>
+      <div>
+        <a href="https://openaccess.thecvf.com/content/CVPR2026W/GRAIL-V/papers/Lan_Seeing_without_Looking_Do_Vision-Language_Benchmarks_Really_Test_Vision_CVPRW_2026_paper.pdf">Paper</a>
+        <a href="https://github.com/Zesearch/vlm-seeing-without-looking">Code</a>
+      </div>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
