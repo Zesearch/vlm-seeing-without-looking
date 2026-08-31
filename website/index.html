@@ -279,7 +279,17 @@
         </figure>
 
         <p class="representation-result">
-          The decision-margin results show that removing local evidence weakens affirmative support, but often not enough to change the final prediction. To understand why fine-grained evidence exerts such limited control over the answer, we examine whether spatial information remains distinguishable across the vision encoder. In early layers, visual tokens from the same spatial region remain more similar than tokens from different regions, with local structure strongest around <strong>Layers 7–9</strong>. Deeper in the encoder, inter-block similarity approaches intra-block similarity, spatial clusters become less compact, and effective rank drops sharply after approximately <strong>Layer 12</strong>. By <strong>Layer 23</strong>, the block-similarity map is nearly uniform. Across directional alignment, spatial separability, and representational dimensionality, the same pattern emerges: <strong>fine-grained spatial distinctions progressively fade with depth.</strong>
+          The decision-margin results show that removing local evidence weakens affirmative support, but often not enough to change the final prediction. To understand why fine-grained evidence exerts such limited control over the answer, we conduct a dataset-level analysis over <strong>POPE images</strong> and examine whether spatial information remains distinguishable across the vision encoder. In early layers, visual tokens from the same spatial region remain more similar than tokens from different regions, with local structure strongest around <strong>Layers 7–9</strong>. Deeper in the encoder, inter-block similarity approaches intra-block similarity, spatial clusters become less compact, and effective rank drops sharply after approximately <strong>Layer 12</strong>. By <strong>Layer 23</strong>, the block-similarity map is nearly uniform. Across directional alignment, spatial separability, and representational dimensionality, the aggregate results show the same pattern: <strong>fine-grained spatial distinctions progressively fade with depth.</strong>
+        </p>
+
+        <figure class="qualitative-figure">
+          <a href="assets/visual-clustering-example.png" aria-label="Open the visual-clustering example at full resolution">
+            <img src="assets/visual-clustering-example.png" alt="K-means cluster assignments of spatial visual tokens from Layer 1 through Layer 23" />
+          </a>
+        </figure>
+
+        <p class="representation-result representation-case-result">
+          The second figure provides a single-image qualitative case study. From left to right, it shows the input image followed by clustering assignments at <strong>Layers 1, 7, and 23</strong>. The early-layer clusters form coherent, contiguous spatial regions that still follow the structure of the scene. As depth increases, the assignments become progressively fragmented and mixed. By Layer 23, neighboring patches are far less likely to remain in the same cluster, providing an intuitive visual example of the spatial homogenization captured by the aggregate POPE analysis above.
         </p>
       </section>
 

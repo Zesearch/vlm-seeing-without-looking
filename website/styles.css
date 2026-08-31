@@ -475,6 +475,10 @@ img { display: block; max-width: 100%; }
   height: auto;
   margin: 0 auto;
 }
+.representational-analysis .qualitative-figure {
+  width: min(1000px, 100%);
+  margin-top: 76px;
+}
 .representation-result {
   max-width: 820px;
   margin: 48px auto 0;
@@ -581,6 +585,7 @@ footer div { display: flex; gap: 22px; }
   .representational-analysis { padding: 75px 0 80px; }
   .representational-analysis > h2 { font-size: 37px; }
   .representational-analysis figure { margin-top: 38px; }
+  .representational-analysis .qualitative-figure { margin-top: 56px; }
   .representation-result { margin-top: 38px; font-size: 18px; line-height: 1.65; }
   .discussion { padding: 75px 0 80px; }
   .discussion > h2 { font-size: 37px; }
