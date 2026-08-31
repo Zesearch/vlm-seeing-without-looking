@@ -7,6 +7,12 @@
   <a href="https://openaccess.thecvf.com/content/CVPR2026W/GRAIL-V/papers/Lan_Seeing_without_Looking_Do_Vision-Language_Benchmarks_Really_Test_Vision_CVPRW_2026_paper.pdf">
     <img src="https://img.shields.io/static/v1?label=Paper&message=CVPR%202026&color=blue" alt="Paper">
   </a>
+  <a href="https://zesearch.github.io/vlm-seeing-without-looking/">
+    <img src="https://img.shields.io/static/v1?label=Web&message=Project%20Page&color=informational" alt="Project Website">
+  </a>
+  <a href="https://zesearch.github.io/vlm-SABRE">
+    <img src="https://img.shields.io/static/v1?label=Follow-up%20Work&message=SABRE&color=6f42c1" alt="Follow-up Work: SABRE">
+  </a>
   <img src="https://img.shields.io/static/v1?label=Task&message=VLM%20Evaluation&color=green" alt="Task">
   <img src="https://img.shields.io/static/v1?label=Focus&message=Visual%20Grounding&color=orange" alt="Focus">
 </p>
